@@ -12,6 +12,7 @@ penguins = palmerpenguins.load_penguins()
 
 ui.page_opts(title="Penguin Data - Brendan", fillable=True)
 
+# sidebar
 with ui.sidebar(bg="#f8f8f8", open='open'):
     ui.h2("Sidebar")
     ui.input_selectize("selected_attribute", "Selected_attribute",
@@ -23,8 +24,11 @@ with ui.sidebar(bg="#f8f8f8", open='open'):
                             ["Adelie", "Gentoo", "Chinstrap"], inline = False)
     ui.hr()
     ui.a("GitHub", href = "https://github.com/reedbc1/cintel-02-data/tree/main", target = "_blank")
-    
+
+# create two columns
 with ui.layout_columns():
+    
+    # show data
     with ui.navset_card_pill(id="tab1"):  
         with ui.nav_panel("Data Table"):
             @render.data_frame  
@@ -34,13 +38,15 @@ with ui.layout_columns():
             @render.data_frame  
             def penguins_data_grid():
                 return render.DataGrid(penguins)
-            
+                
+    # show graphs
     with ui.navset_card_pill(id="tab2"):  
+        
         with ui.nav_panel("Plotly Histogram"):
             @render_widget  
             def plot_hist():  
                 mass_fig = px.histogram(
-                    data_frame=penguins,
+                    data_frame=filtered_data(),
                     x="body_mass_g",
                     color = "species",
                     nbins=input.plotly_bin_count(),
@@ -54,7 +60,7 @@ with ui.layout_columns():
         with ui.nav_panel("Seaborn Histogram"):
             @render.plot(alt="A Seaborn histogram on penguin body mass in grams.")  
             def plot():  
-                ax = sns.histplot(data=penguins, x="body_mass_g", 
+                ax = sns.histplot(data=filtered_data(), x="body_mass_g", 
                                   hue = "species", bins=input.seaborn_bin_count())  
                 ax.set_title("Palmer Penguins")
                 ax.set_xlabel("Mass (g)")
@@ -65,7 +71,7 @@ with ui.layout_columns():
             @render_widget  
             def plot_scatter():  
                 plotly_fig = px.scatter(
-                    data_frame=penguins,
+                    data_frame=filtered_data(),
                     x="body_mass_g",
                     color = "species"
                 ).update_layout(
