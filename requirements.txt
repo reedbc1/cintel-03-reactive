@@ -1,0 +1,6 @@
+pandas
+plotly
+palmerpenguins
+shiny
+shinywidgets
+seaborn
