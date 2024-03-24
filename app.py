@@ -10,6 +10,7 @@ import palmerpenguins
 # Use the built-in function to load the Palmer Penguins dataset
 penguins = palmerpenguins.load_penguins()
 
+
 ui.page_opts(title="Penguin Data - Brendan", fillable=True)
 
 # sidebar
@@ -20,10 +21,15 @@ with ui.sidebar(bg="#f8f8f8", open='open'):
                         "flipper_length_mm", "body_mass_g"])
     ui.input_numeric("plotly_bin_count", "Plotly_bin_count", 50)
     ui.input_slider("seaborn_bin_count", "Seaborn_bin_count", 1, 100, 50)
-    ui.input_checkbox_group("selected_species_list", "selected_species_list", 
-                            ["Adelie", "Gentoo", "Chinstrap"], inline = False)
+    ui.input_checkbox_group("selected_species_list", "Selected_species_list", 
+                            ["Adelie", "Gentoo", "Chinstrap"], 
+                            selected = ["Adelie", "Gentoo", "Chinstrap"], inline = False)
+    ui.input_checkbox_group("selected_island_list", "Selected_island_list", 
+                            ['Torgersen', 'Biscoe', 'Dream'], 
+                            selected = ['Torgersen', 'Biscoe', 'Dream'], inline = False)
     ui.hr()
     ui.a("GitHub", href = "https://github.com/reedbc1/cintel-02-data/tree/main", target = "_blank")
+
 
 # create two columns
 with ui.layout_columns():
@@ -47,13 +53,13 @@ with ui.layout_columns():
             def plot_hist():  
                 mass_fig = px.histogram(
                     data_frame=filtered_data(),
-                    x="body_mass_g",
+                    x=input.selected_attribute(),
                     color = "species",
                     nbins=input.plotly_bin_count(),
                 ).update_layout(
-                    title={"text": "Penguin Mass", "x": 0.5},
+                    title={"text": "Penguin Stats", "x": 0.5},
                     yaxis_title="Count",
-                    xaxis_title="Body Mass (g)",
+                    xaxis_title=input.selected_attribute(),
                 )
                 return mass_fig
         
@@ -86,11 +92,9 @@ with ui.layout_columns():
 # Reactive calculations and effects
 # --------------------------------------------------------
 
-# Add a reactive calculation to filter the data
-# By decorating the function with @reactive, we can use the function to filter the data
-# The function will be called whenever an input functions used to generate that output changes.
-# Any output that depends on the reactive function (e.g., filtered_data()) will be updated when the data changes.
-
 @reactive.calc
 def filtered_data():
-    return penguins
+    isSpeciesMatch = penguins["species"].isin(input.selected_species_list())
+    isIslandMatch = penguins["island"].isin(input.selected_island_list())
+    filtered_df_and = penguins[isSpeciesMatch & isIslandMatch]
+    return filtered_df_and
