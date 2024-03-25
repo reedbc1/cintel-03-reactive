@@ -1,7 +1,6 @@
 import plotly.express as px
 import seaborn as sns
-from shiny import render
-from shiny import reactive
+from shiny import reactive, render, req
 from shiny.express import input, ui
 from shinywidgets import render_plotly
 from shinywidgets import render_widget
@@ -9,7 +8,6 @@ import palmerpenguins
 
 # Use the built-in function to load the Palmer Penguins dataset
 penguins = palmerpenguins.load_penguins()
-
 
 ui.page_opts(title="Penguin Data - Brendan", fillable=True)
 
@@ -94,6 +92,9 @@ with ui.layout_columns():
 
 @reactive.calc
 def filtered_data():
+    req(input.selected_species_list())
+    req(input.selected_island_list())
+    
     isSpeciesMatch = penguins["species"].isin(input.selected_species_list())
     isIslandMatch = penguins["island"].isin(input.selected_island_list())
     filtered_df_and = penguins[isSpeciesMatch & isIslandMatch]
